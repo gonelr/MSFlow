@@ -208,7 +208,7 @@ def plot_3d_motion(
 
     data = joints.copy().reshape(len(joints), -1, 3)
     fig = plt.figure(figsize=figsize)
-    ax = p3.Axes3D(fig)
+    ax = fig.add_axes([0, 0, 1, 1], projection="3d")
     init()
     MINS = data.min(axis=0).min(axis=0)
     MAXS = data.max(axis=0).max(axis=0)
@@ -239,10 +239,10 @@ def plot_3d_motion(
     data[..., 2] -= data[:, 0:1, 2]
 
     def update(index):
-        ax.lines = []
-        ax.collections = []
+        for artist in list(ax.lines) + list(ax.collections):
+            artist.remove()
         ax.view_init(elev=120, azim=-90)
-        ax.dist = 7.5
+        ax.set_box_aspect(None, zoom=10 / 7.5)
         plot_xzPlane(
             MINS[0] - trajec[index, 0],
             MAXS[0] - trajec[index, 0],

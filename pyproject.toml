@@ -14,7 +14,7 @@ dependencies = [
   "pip>=25.2",
   "clip",
   "en-core-web-sm",
-  "matplotlib==3.3.2",
+  "matplotlib>=3.8",
   "numpy==1.26.4",
   "packaging>=25.0",
   "ninja>=1.13.0",
@@ -29,27 +29,22 @@ dependencies = [
   "accelerate>=1.11.0",
   "matplotlib-inline==0.1.6",
   "ipykernel>=7.0.1",
-  "flash-attn==2.7.3",
   "tiktoken>=0.12.0",
   "sentencepiece==0.2.0",
-  "pysen[lint]>=0.11.0",
-  "torch",
-  "torchvision",
+  "torch==2.6.0",
+  "torchvision==0.21.0",
   "imageio>=2.37.4",
   "sentence-transformers>=5.7.0",
   "pytorch-lightning>=2.6.5",
 ]
 
+[tool.uv]
+# CLIP's setup.py imports pkg_resources, removed in setuptools 81
+build-constraint-dependencies = ["setuptools<81"]
+
 [tool.uv.sources]
 en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl" }
 clip = { git = "https://github.com/openai/CLIP.git" }
-torch = { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp310-cp310-linux_x86_64.whl" }
-torchvision = { url = "https://download.pytorch.org/whl/cu124/torchvision-0.21.0%2Bcu124-cp310-cp310-linux_x86_64.whl" }
-
-[[tool.uv.index]]
-name = "pytorch-cu124"
-url = "https://download.pytorch.org/whl/cu124"
-explicit = true
 
 [tool.pysen]
 version = "0.11"

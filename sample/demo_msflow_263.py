@@ -1,6 +1,7 @@
 import csv
 import os
 import random
+import time
 from os.path import join as pjoin
 from pathlib import Path
 from typing import Any
@@ -258,7 +259,9 @@ def run(cfg: DictConfig) -> None:
     _validate_checkpoint_keys(missing_keys, unexpected_keys)
 
     requested_gpu = str(cfg.gpu)
-    if requested_gpu != "cpu" and torch.cuda.is_available():
+    if requested_gpu == "mps" and torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif requested_gpu not in ("cpu", "mps") and torch.cuda.is_available():
         device = torch.device(f"cuda:{requested_gpu}")
     else:
         if requested_gpu != "cpu":
@@ -291,8 +294,18 @@ def run(cfg: DictConfig) -> None:
 
     m_length = torch.tensor(frame_lengths, dtype=torch.long, device=device)
 
+    start_time = time.perf_counter()
     with torch.no_grad():
         pred_motions = ema_model.generate(clip_text, m_length, cond_scale=cfg.cfg)
+    if device.type == "mps":
+        torch.mps.synchronize()
+    print(f"Generation took {time.perf_counter() - start_time:.2f}s on {device}")
+    if device.type == "mps":
+        print(
+            "MPS memory: "
+            f"{torch.mps.current_allocated_memory() / 2**20:.0f} MiB allocated, "
+            f"{torch.mps.driver_allocated_memory() / 2**20:.0f} MiB driver"
+        )
 
     if pred_motions.ndim == 4:
         pred_motions = pred_motions[:, :, 0, :]

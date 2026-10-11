@@ -656,7 +656,9 @@ def main() -> None:
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
-    if args.gpu != "cpu" and torch.cuda.is_available():
+    if args.gpu == "mps" and torch.backends.mps.is_available():
+        device = torch.device("mps")
+    elif args.gpu not in ("cpu", "mps") and torch.cuda.is_available():
         device = torch.device(f"cuda:{args.gpu}")
     else:
         if args.gpu != "cpu":
